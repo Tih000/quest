@@ -3,26 +3,14 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV REACT_APP_API_URL=http://localhost/api
-
-# Install system dependencies
-RUN apk add --no-cache \
-    curl \
-    && rm -rf /var/cache/apk/*
-
-# Copy package files first
+# Copy package files
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy all source files
+# Copy source code
 COPY . .
-
-# Verify files are present
-RUN ls -la /app/public/
 
 # Build the application
 RUN npm run build
@@ -37,10 +25,6 @@ USER nextjs
 
 # Expose port
 EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
 
 # Start the application
 CMD ["npm", "start"]
