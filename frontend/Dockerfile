@@ -13,8 +13,9 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install --production
 
-# Copy static files
+# Copy static files and server
 COPY public/ ./public/
+COPY server.js ./
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
