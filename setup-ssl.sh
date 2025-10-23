@@ -7,17 +7,16 @@ set -e
 
 echo "🔐 Setting up SSL for questgo.ru..."
 
-# Check if running as root
+# Check if running as root (allow root execution)
 if [ "$EUID" -eq 0 ]; then
-    echo "❌ Please don't run this script as root"
-    exit 1
+    echo "⚠️  Running as root - this is OK for server setup"
 fi
 
 # Install Certbot if not installed
 if ! command -v certbot &> /dev/null; then
     echo "📦 Installing Certbot..."
-    sudo apt update
-    sudo apt install -y certbot
+    apt update
+    apt install -y certbot
 fi
 
 # Stop containers to free port 80
@@ -26,17 +25,17 @@ docker-compose down || true
 
 # Stop system nginx if running
 echo "🛑 Stopping system nginx..."
-sudo systemctl stop nginx || true
-sudo systemctl disable nginx || true
+systemctl stop nginx || true
+systemctl disable nginx || true
 
 # Get SSL certificate
 echo "🔐 Getting SSL certificate..."
-sudo certbot certonly --standalone -d questgo.ru -d www.questgo.ru --non-interactive --agree-tos --email admin@questgo.ru
+certbot certonly --standalone -d questgo.ru -d www.questgo.ru --non-interactive --agree-tos --email admin@questgo.ru
 
 # Create directory for SSL certificates in nginx container
 echo "📁 Creating SSL certificate directory..."
-sudo mkdir -p /etc/letsencrypt/live/questgo.ru
-sudo chmod 755 /etc/letsencrypt/live/questgo.ru
+mkdir -p /etc/letsencrypt/live/questgo.ru
+chmod 755 /etc/letsencrypt/live/questgo.ru
 
 # Update docker-compose to mount SSL certificates
 echo "📝 Updating docker-compose configuration..."
