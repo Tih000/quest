@@ -3,14 +3,15 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy everything at once
+COPY . .
 
 # Install dependencies
 RUN npm install
 
-# Copy source code
-COPY . .
+# Debug: Check what files are copied
+RUN ls -la /app
+RUN ls -la /app/public || echo "public directory not found"
 
 # Build the application
 RUN npm run build
