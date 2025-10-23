@@ -37,21 +37,8 @@ echo "📁 Creating SSL certificate directory..."
 mkdir -p /etc/letsencrypt/live/questgo.ru
 chmod 755 /etc/letsencrypt/live/questgo.ru
 
-# Update docker-compose to mount SSL certificates
-echo "📝 Updating docker-compose configuration..."
-cat >> docker-compose.yml << 'EOF'
-
-volumes:
-  ssl_certs:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /etc/letsencrypt
-EOF
-
-# Update nginx service to mount SSL certificates
-sed -i '/volumes:/a\      - /etc/letsencrypt:/etc/letsencrypt:ro' docker-compose.yml
+# SSL certificates are already mounted in docker-compose.yml
+echo "📝 SSL certificates are already configured in docker-compose.yml..."
 
 # Start containers
 echo "🚀 Starting containers..."
