@@ -4,7 +4,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Set environment variables
-ENV NODE_ENV=development
+ENV NODE_ENV=production
 ENV REACT_APP_API_URL=http://localhost/api
 
 # Install system dependencies
@@ -12,11 +12,11 @@ RUN apk add --no-cache \
     curl \
     && rm -rf /var/cache/apk/*
 
-# Copy package files
+# Copy package files first for better caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --omit=dev
+# Install all dependencies (including devDependencies for build)
+RUN npm install
 
 # Copy source code
 COPY . .
