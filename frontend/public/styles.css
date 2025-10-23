@@ -592,7 +592,9 @@ h3 {
 .empty-state {
     text-align: center;
     padding: 40px 20px;
-    color: var(--medium-gray);
+    color: var(--white);
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
 /* Настройки */
@@ -673,9 +675,11 @@ h3 {
 /* Профиль */
 .profile-display {
     margin-top: 16px;
-    padding: 20px;
-    background-color: var(--light-gray);
-    border-radius: 12px;
+    padding: 30px;
+    background: linear-gradient(135deg, #FFF8E7 0%, #FFF0CC 100%);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(255, 193, 7, 0.15);
+    border: 2px solid #FFE082;
 }
 
 .profile-field {
@@ -684,9 +688,10 @@ h3 {
 
 .profile-label {
     font-size: 12px;
-    color: var(--white);
+    color: var(--dark-gray);
     margin-bottom: 4px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    font-weight: 600;
 }
 
 .profile-value {
@@ -1300,9 +1305,9 @@ h3 {
 
 .stat-label {
     font-size: 12px;
-    color: var(--white);
+    color: var(--dark-gray);
     text-transform: uppercase;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
     letter-spacing: 0.5px;
 }
 
