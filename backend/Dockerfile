@@ -23,8 +23,10 @@ RUN mkdir -p ./data
 
 # Copy source code
 COPY src/ ./src/
-COPY data/questgo.json ./data/
 COPY logo.png ./
+
+# Create initial database file
+RUN echo '{"users": [], "quests": [], "achievements": []}' > ./data/questgo.json
 
 # Build TypeScript
 RUN npm run build
