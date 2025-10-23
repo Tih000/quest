@@ -15,8 +15,8 @@ RUN apk add --no-cache \
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Install dependencies
-RUN npm install --production
+# Install all dependencies (including dev dependencies for build)
+RUN npm install
 
 # Create data directory
 RUN mkdir -p ./data
@@ -30,6 +30,9 @@ RUN echo '{"users": [], "quests": [], "achievements": []}' > ./data/questgo.json
 
 # Build TypeScript
 RUN npm run build
+
+# Remove dev dependencies to reduce image size
+RUN npm prune --production
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
