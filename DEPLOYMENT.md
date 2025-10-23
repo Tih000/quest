@@ -90,10 +90,48 @@ quest/
 
 После успешного развертывания приложение будет доступно по адресам:
 
-- **Основной URL**: http://2.56.179.161
-- **Локальный доступ**: http://localhost
-- **API**: http://2.56.179.161/api/
-- **Health check**: http://2.56.179.161/health
+- **Основной URL**: https://questgo.ru
+- **API**: https://questgo.ru/api/
+- **Health check**: https://questgo.ru/health
+
+## 🔐 Настройка HTTPS
+
+Для настройки SSL сертификата для домена questgo.ru:
+
+```bash
+# Автоматическая настройка SSL
+chmod +x setup-ssl.sh
+./setup-ssl.sh
+```
+
+### Ручная настройка SSL
+
+1. **Установите Certbot:**
+   ```bash
+   sudo apt update
+   sudo apt install -y certbot
+   ```
+
+2. **Остановите контейнеры:**
+   ```bash
+   docker-compose down
+   sudo systemctl stop nginx
+   ```
+
+3. **Получите SSL сертификат:**
+   ```bash
+   sudo certbot certonly --standalone -d questgo.ru -d www.questgo.ru
+   ```
+
+4. **Запустите контейнеры:**
+   ```bash
+   docker-compose up -d
+   ```
+
+5. **Настройте автообновление:**
+   ```bash
+   (crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet && docker-compose restart nginx") | crontab -
+   ```
 
 ## Полезные команды
 

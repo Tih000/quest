@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# QuestGO SSL Setup Script
+# Usage: ./setup-ssl.sh
+
+set -e
+
+echo "🔐 Setting up SSL for questgo.ru..."
+
+# Check if running as root
+if [ "$EUID" -eq 0 ]; then
+    echo "❌ Please don't run this script as root"
+    exit 1
+fi
+
+# Install Certbot if not installed
+if ! command -v certbot &> /dev/null; then
+    echo "📦 Installing Certbot..."
+    sudo apt update
+    sudo apt install -y certbot
+fi
+
+# Stop containers to free port 80
+echo "🛑 Stopping containers..."
+docker-compose down || true
+
+# Stop system nginx if running
+echo "🛑 Stopping system nginx..."
+sudo systemctl stop nginx || true
+sudo systemctl disable nginx || true
+
+# Get SSL certificate
+echo "🔐 Getting SSL certificate..."
+sudo certbot certonly --standalone -d questgo.ru -d www.questgo.ru --non-interactive --agree-tos --email admin@questgo.ru
+
+# Create directory for SSL certificates in nginx container
+echo "📁 Creating SSL certificate directory..."
+sudo mkdir -p /etc/letsencrypt/live/questgo.ru
+sudo chmod 755 /etc/letsencrypt/live/questgo.ru
+
+# Update docker-compose to mount SSL certificates
+echo "📝 Updating docker-compose configuration..."
+cat >> docker-compose.yml << 'EOF'
+
+volumes:
+  ssl_certs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /etc/letsencrypt
+EOF
+
+# Update nginx service to mount SSL certificates
+sed -i '/volumes:/a\      - /etc/letsencrypt:/etc/letsencrypt:ro' docker-compose.yml
+
+# Start containers
+echo "🚀 Starting containers..."
+docker-compose up -d
+
+# Setup auto-renewal
+echo "🔄 Setting up auto-renewal..."
+(crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet && docker-compose restart nginx") | crontab -
+
+echo ""
+echo "🎉 SSL setup completed!"
+echo ""
+echo "📱 Your site is now available at:"
+echo "   - https://questgo.ru"
+echo "   - https://www.questgo.ru"
+echo ""
+echo "🔍 Test your SSL setup:"
+echo "   curl -I https://questgo.ru"
+echo ""
+echo "📊 Check certificate status:"
+echo "   sudo certbot certificates"
