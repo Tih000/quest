@@ -75,39 +75,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Специальный маршрут для CSS файла
-app.get('/styles.css', (req, res) => {
-  res.setHeader('Content-Type', 'text/css');
-  res.sendFile(path.join(__dirname, '../../styles.css'));
-});
-
-// Static files (для frontend) - ПОСЛЕ API routes
-app.use(express.static(path.join(__dirname, '../../'), {
-  maxAge: '1d', // Кэширование на 1 день
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, path) => {
-    // Устанавливаем правильные MIME-типы
-    if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    } else if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.png')) {
-      res.setHeader('Content-Type', 'image/png');
-    } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-      res.setHeader('Content-Type', 'image/jpeg');
-    }
-  }
-}));
-
-// Serve frontend for all other routes (кроме API)
-app.get('*', (req, res, next) => {
-  // Пропускаем API маршруты
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  res.sendFile(path.join(__dirname, '../../index.html'));
-});
+// Backend only serves API routes
+// Frontend is served by nginx from frontend container
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
