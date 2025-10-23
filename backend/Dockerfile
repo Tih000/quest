@@ -18,6 +18,9 @@ COPY tsconfig.json ./
 # Install dependencies
 RUN npm ci --only=production
 
+# Create data directory
+RUN mkdir -p ./data
+
 # Copy source code
 COPY src/ ./src/
 COPY data/ ./data/
