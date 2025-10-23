@@ -30,7 +30,7 @@ systemctl disable nginx || true
 
 # Get SSL certificate
 echo "🔐 Getting SSL certificate..."
-certbot certonly --standalone -d questgo.ru -d www.questgo.ru --non-interactive --agree-tos --email admin@questgo.ru
+certbot certonly --standalone -d questgo.ru --non-interactive --agree-tos --email admin@questgo.ru
 
 # Create directory for SSL certificates in nginx container
 echo "📁 Creating SSL certificate directory..."
