@@ -11,7 +11,7 @@ RUN apk add --no-cache curl
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --omit=dev
+RUN npm install --production
 
 # Copy static files
 COPY public/ ./public/
