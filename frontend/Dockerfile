@@ -12,14 +12,11 @@ RUN apk add --no-cache \
     curl \
     && rm -rf /var/cache/apk/*
 
-# Copy package files first for better caching
-COPY package*.json ./
+# Copy all files first
+COPY . .
 
 # Install all dependencies (including devDependencies for build)
 RUN npm install
-
-# Copy source code
-COPY . .
 
 # Build the application
 RUN npm run build
