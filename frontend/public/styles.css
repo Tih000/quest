@@ -37,7 +37,7 @@ body {
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
-    padding-bottom: 100px;
+    padding-bottom: 120px;
 }
 
 /* Экран входа */
@@ -81,8 +81,9 @@ body {
     display: block;
     text-align: left;
     margin-bottom: 8px;
-    color: var(--medium-gray);
+    color: var(--white);
     font-size: 14px;
+    font-weight: 500;
 }
 
 .login-form input {
@@ -184,8 +185,9 @@ body {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: var(--dark-gray);
+    color: var(--white);
     font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 .form-group input,
@@ -673,8 +675,9 @@ h3 {
 
 .profile-label {
     font-size: 12px;
-    color: var(--medium-gray);
+    color: var(--white);
     margin-bottom: 4px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 .profile-value {
@@ -971,16 +974,16 @@ h3 {
 }
 
 .value-logo {
-    width: 50px;
-    height: 50px;
+    width: 200px;
+    height: 200px;
     object-fit: cover;
     border-radius: 50%;
-    border: 2px solid var(--primary-purple);
-    margin-right: 15px;
+    border: 4px solid var(--primary-purple);
+    margin-right: 20px;
 }
 
 .value-header h2 {
-    font-size: 28px;
+    font-size: 48px;
     color: var(--dark-gray);
     font-weight: 700;
     margin: 0;
@@ -1264,8 +1267,9 @@ h3 {
 
 .stat-label {
     font-size: 12px;
-    color: var(--medium-gray);
+    color: var(--white);
     text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     letter-spacing: 0.5px;
 }
 
@@ -1273,7 +1277,11 @@ h3 {
 @media (max-width: 600px) {
     .container {
         padding: 16px;
-        padding-bottom: 100px;
+        padding-bottom: 140px;
+    }
+    
+    .login-container {
+        padding-bottom: 140px;
     }
 
     h1 {
@@ -1306,7 +1314,13 @@ h3 {
     }
     
     .value-header h2 {
-        font-size: 24px;
+        font-size: 36px;
+    }
+    
+    .value-logo {
+        width: 150px;
+        height: 150px;
+        margin-right: 15px;
     }
     
     .value-statement {

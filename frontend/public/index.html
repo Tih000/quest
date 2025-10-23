@@ -52,8 +52,14 @@
             display: block;
             margin: 0 auto;
         }
-        .btn-logo, .value-logo, .roadmap-logo, .tab-logo {
+        .btn-logo, .roadmap-logo, .tab-logo {
             max-width: 24px;
+            height: auto;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .value-logo {
+            max-width: 96px;
             height: auto;
             display: inline-block;
             vertical-align: middle;
@@ -68,8 +74,7 @@
     <div id="login-screen" class="screen active">
         <div class="login-container">
             <div class="logo">
-                <img src="./logo.png" alt="QuestGO" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div style="display:none; width:100px; height:100px; background:#8A2BE2; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:24px; font-weight:bold;">Q</div>
+                <img src="./logo.png" alt="QuestGO" class="logo-image">
             </div>
             <h1>Добро пожаловать в ИИ-квесты!</h1>
             <div class="login-form">
