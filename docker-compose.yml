@@ -4,22 +4,31 @@ services:
   backend:
     build: ./backend
     ports:
-      - "5000:5000"
+      - "3000:3000"
     environment:
-      - FLASK_ENV=development
-      - PYTHONPATH=/app
+      - NODE_ENV=production
+      - PORT=3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key}
+      - DATABASE_PATH=/app/data/questgo.json
+      - CORS_ORIGIN=http://2.56.179.161,http://localhost:3000,http://questgo.ru,https://questgo.ru
+    volumes:
+      - backend_data:/app/data
     networks:
       - app-network
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
-      - NODE_ENV=development
-      - REACT_APP_API_URL=http://2.56.179.161/api
+      - NODE_ENV=production
+      - PORT=3000
+      - CORS_ORIGIN=http://2.56.179.161,http://localhost:3000,http://questgo.ru,https://questgo.ru
     networks:
       - app-network
+    restart: unless-stopped
 
   nginx:
     image: nginx:alpine
@@ -31,9 +40,12 @@ services:
       - frontend
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx_subdomain.conf:/etc/nginx/nginx_subdomain.conf:ro
     networks:
       - app-network
+    restart: unless-stopped
+
+volumes:
+  backend_data:
 
 networks:
   app-network:

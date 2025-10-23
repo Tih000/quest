@@ -1,20 +1,637 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Full-stack application with React frontend and Flask backend"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>Full-Stack App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuestGO - ИИ-квесты</title>
+    <link rel="icon" type="image/png" href="./backend/logo.png">
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .login-container { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+        .btn { 
+            background: #8A2BE2; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            margin: 10px 0; 
+        }
+        .btn:hover { background: #7B1FA2; }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            margin: 10px 0; 
+        }
+        h1 { color: white; text-align: center; margin-bottom: 30px; }
+        .logo { margin-bottom: 30px; }
+        .logo-image { max-width: 100px; height: auto; }
+    </style>
+</head>
+<body>
+    <script src="config.js"></script>
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="logo">
+                <img src="./backend/logo.png" alt="QuestGO" class="logo-image">
+            </div>
+            <h1>Добро пожаловать в ИИ-квесты!</h1>
+            <div class="login-form">
+                <label for="phone">Номер телефона</label>
+                <input type="tel" id="phone" placeholder="+7 (___) ___-__-__" maxlength="18">
+                <button id="login-btn" class="btn btn-primary">Войти</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-setup-screen" class="screen">
+        <div class="container">
+            <h1>Заполните анкету</h1>
+            <form id="profile-form">
+                <div class="form-group">
+                    <label for="username">Имя пользователя *</label>
+                    <input type="text" id="username" placeholder="@Leonid" required>
+                    <small>Только латиница, начиная с @</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">Возраст *</label>
+                    <input type="number" id="age" min="1" max="120" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Пол *</label>
+                    <div class="gender-buttons">
+                        <button type="button" class="gender-btn" data-gender="М">М</button>
+                        <button type="button" class="gender-btn" data-gender="Ж">Ж</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="city">Город *</label>
+                    <input type="text" id="city" placeholder="Москва" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Интересы *</label>
+                    <div class="interests-grid">
+                        <button type="button" class="interest-btn" data-interest="еда">🍔 Еда</button>
+                        <button type="button" class="interest-btn" data-interest="спорт">⚽ Спорт</button>
+                        <button type="button" class="interest-btn" data-interest="искусство">🎨 Искусство</button>
+                        <button type="button" class="interest-btn" data-interest="путешествия">✈️ Путешествия</button>
+                        <button type="button" class="interest-btn" data-interest="другое">➕ Другое</button>
+                    </div>
+                    <input type="text" id="custom-interest" placeholder="Введите свой интерес" style="display: none;">
+                </div>
+                
+                <div class="form-group">
+                    <label>Номер телефона</label>
+                    <input type="tel" id="phone-readonly" readonly>
+                </div>
+                
+                <button type="submit" id="save-profile-btn" class="btn btn-primary" disabled>Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app" class="screen">
+        <div id="quest-tab" class="tab-content active">
+            <div class="container">
+                <h1 id="greeting">Привет! Готов к квесту?</h1>
+                
+                <div class="quest-card" id="current-quest-card" style="display: none;">
+                    <div class="quest-header">
+                        <span class="quest-type">Квест дня</span>
+                        <span class="quest-difficulty">⭐ Обычный</span>
+                    </div>
+                    <p class="quest-text" id="quest-text"></p>
+                    <div class="quest-actions">
+                        <button class="btn btn-primary" id="complete-quest-btn">Готово ✓</button>
+                        <button class="btn btn-secondary" id="skip-quest-btn">Пропустить</button>
+                        <button class="btn btn-secondary" id="share-quest-btn" style="display: none;">Создать ссылку для друга 👥</button>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-large" id="generate-quest-btn">
+                    <img src="./backend/logo.png" alt="Quest" class="btn-logo">
+                    Сгенерировать квест
+                </button>
+                
+                <div class="progress-section">
+                    <h3>Ваш прогресс</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <p class="progress-text">Выполнено квестов: <span id="quests-completed">0</span></p>
+                </div>
+
+                <div class="pro-teaser" id="pro-teaser" style="display: none;">
+                    <div class="pro-badge">PRO</div>
+                    <h3>✨ Пример PRO-квеста</h3>
+                    <p class="quest-text pro-quest-preview" id="pro-quest-preview"></p>
+                    <button class="btn btn-accent" id="try-pro-btn">Попробовать PRO →</button>
+                </div>
+
+                <div class="friends-quest-section">
+                    <button class="btn btn-disabled" id="friends-quest-btn">
+                        👥 Пройти квест с друзьями
+                    </button>
+                    <p class="feature-note" id="pro-note">Доступно с PRO-версией</p>
+                </div>
+
+                <div class="value-proposition">
+                    <div class="value-header">
+                        <img src="./backend/logo.png" alt="QuestGO" class="value-logo">
+                        <h2>QuestGO</h2>
+                    </div>
+                    
+                    <div class="value-main">
+                        <div class="value-statement">
+                            <h3>Наша миссия</h3>
+                            <p class="value-text">QuestGO создает уникальные квесты с помощью ИИ для каждого пользователя, превращая обычные прогулки в незабываемые приключения</p>
+                        </div>
+                        
+                        <div class="slogan-section">
+                            <div class="slogan-badge">Слоган QuestGO</div>
+                            <blockquote class="text-center">
+                                "Ваш город полон тайн. QuestGO поможет их раскрыть! Превратите скучную прогулку в захватывающее приключение"
+                            </blockquote>
+                        </div>
+                        
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <h4>🎮 Игровая механика</h4>
+                                <ul>
+                                    <li><strong>Персонализированная генерация квестов через AI</strong></li>
+                                    <li><strong>Система достижений (возможность обменнивать достижения на промокоды\скидки в будущем)</strong></li>
+                                    <li><strong>Прогресс-трекинг с визуальными индикаторами</strong></li>
+                                    <li><strong>Социальные элементы (совместные квесты с друзьями)</strong></li>
+                                    <li><strong>Система очков и рейтингов</strong></li>
+                                    <li><strong>Категоризация квестов (квесты генерируются исключительно под ваши интересы)</strong></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <h4>📱 Контент</h4>
+                                <ul>
+                                    <li><strong>ИИ-генерируемые квесты адаптированные под интересы пользователя</strong></li>
+                                    <li><strong>Локализованный контент для российских городов</strong></li>
+                                    <li><strong>Разнообразные категории заданий (от простых фото-квестов до сложных гастрономических приключений)</strong></li>
+                                    <li><strong>PRO-контент с VIP-заданиями повышенной сложности</strong></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <h4>💎 Ценность для пользователя</h4>
+                                <ul>
+                                    <li><strong>Мотивация к активности - выйти из дома и исследовать город</strong></li>
+                                    <li><strong>Социальное взаимодействие - квесты с друзьями</strong></li>
+                                    <li><strong>Персонализация - квесты под ваши интересы</strong></li>
+                                    <li><strong>Геймификация повседневности - превращение рутины в приключение</strong></li>
+                                    <li><strong>Открытие новых мест в своем городе - изучение родного города</strong></li>
+                                    <li><strong>Эмоциональная награда - чувство достижения и приключения</strong></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <h4>💰 Модель монетизации</h4>
+                                <ul>
+                                    <li><strong>Free модель с базовым функционалом бесплатно</strong></li>
+                                    <li><strong>Потенциальные партнерства с заведениями города</strong></li>
+                                    <li><strong>PRO-подписка 300₽/мес с расширенными возможностями:</strong></li>
+                                    <li class="sublist"><strong>• Неограниченные квесты</strong></li>
+                                    <li class="sublist"><strong>• VIP-квесты повышенной сложности</strong></li>
+                                    <li class="sublist"><strong>• Совместные квесты с друзьями</strong></li>
+                                    <li class="sublist"><strong>• Эксклюзивные достижения</strong></li>
+                                    <li class="sublist"><strong>• Приоритетная поддержка</strong></li>
+                                    <li><strong>Реферальная система для привлечения новых пользователей</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="development-roadmap">
+                    <div class="roadmap-header">
+                        <img src="./backend/logo.png" alt="QuestGO" class="roadmap-logo">
+                        <h3>ROADMAP QuestGO</h3>
+                    </div>
+                    <div class="roadmap-timeline">
+                        <div class="roadmap-phase current">
+                            <div class="phase-header">
+                                <span class="phase-number">MVP</span>
+                                <span class="phase-title">Этап 1 — MVP</span>
+                            </div>
+                            <div class="phase-content">
+                                <div class="phase-item">🤖 Генерация квестов с ИИ (Google Gemini 2.5)</div>
+                                <div class="phase-item">🎨 Минималистичный интерфейс</div>
+                                <div class="phase-item">🎮 Демо-режим прохождения</div>
+                                <div class="phase-item">👥 Кнопка "Пройти с друзьями" (PRO)</div>
+                                <div class="phase-item">💳 CTA к покупке подписки</div>
+                                <div class="phase-item">📱 Авторизация по номеру</div>
+                                <div class="phase-item">👤 Базовый профиль с анкетой</div>
+                            </div>
+                        </div>
+                        
+                        <div class="roadmap-phase">
+                            <div class="phase-header">
+                                <span class="phase-number">2</span>
+                                <span class="phase-title">Этап 2 — Категории и персонализация</span>
+                            </div>
+                            <div class="phase-content">
+                                <div class="phase-item">🏷️ Категории квестов (еда, спорт, путешествия)</div>
+                                <div class="phase-item">🎯 Генерация по интересам из анкеты</div>
+                                <div class="phase-item">💡 Система рекомендаций "Тебе может понравиться"</div>
+                                <div class="phase-item">💾 Сохранение понравившихся квестов</div>
+                                <div class="phase-item">🎨 Категория "chill-день"</div>
+                            </div>
+                        </div>
+                        
+                        <div class="roadmap-phase">
+                            <div class="phase-header">
+                                <span class="phase-number">3</span>
+                                <span class="phase-title">Этап 3 — Социальные функции</span>
+                            </div>
+                            <div class="phase-content">
+                                <div class="phase-item">👥 Таб "Друзья" в меню</div>
+                                <div class="phase-item">🔍 Поиск друга по нику</div>
+                                <div class="phase-item">🤝 Совместные квесты с друзьями (PRO)</div>
+                                <div class="phase-item">🎁 Реферальная система с бонусами</div>
+                                <div class="phase-item">📊 Статистика друзей</div>
+                            </div>
+                        </div>
+                        
+                        <div class="roadmap-phase">
+                            <div class="phase-header">
+                                <span class="phase-number">4</span>
+                                <span class="phase-title">Этап 4 — Контент и вовлечение</span>
+                            </div>
+                            <div class="phase-content">
+                                <div class="phase-item">📸 Фотоотчеты после квестов</div>
+                                <div class="phase-item">📱 Лента выполненных заданий</div>
+                                <div class="phase-item">⭐ "Лучшие квесты недели"</div>
+                                <div class="phase-item">📤 Делиться своими квестами</div>
+                                <div class="phase-item">🏆 Система достижений</div>
+                            </div>
+                        </div>
+                        
+                        <div class="roadmap-phase">
+                            <div class="phase-header">
+                                <span class="phase-number">5</span>
+                                <span class="phase-title">Этап 5 — PRO 2.0</span>
+                            </div>
+                            <div class="phase-content">
+                                <div class="phase-item">👑 Эксклюзивные квесты и категории</div>
+                                <div class="phase-item">🔗 Совместное прохождение по ссылке</div>
+                                <div class="phase-item">🎧 Приоритетная поддержка</div>
+                                <div class="phase-item">🏅 Уникальные награды и рейтинг</div>
+                                <div class="phase-item">📊 Расширенная аналитика</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="roadmap-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">4.5+ </div>
+                            <div class="stat-label">Рейтинг в App Store</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">10+</div>
+                            <div class="stat-label">Партнерство с заведениями</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">10,000+</div>
+                            <div class="stat-label">Активных пользователей</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="friends-tab" class="tab-content">
+            <div class="container">
+                <h1>Друзья</h1>
+                
+                <div class="search-box">
+                    <input type="text" id="friend-search" placeholder="🔍 Поиск по нику...">
+                </div>
+
+                <div class="friends-list" id="friends-list">
+                    <div class="friend-card">
+                        <div class="friend-avatar">👤</div>
+                        <div class="friend-info">
+                            <div class="friend-name">@Alex</div>
+                            <div class="friend-status">Выполнил 12 квестов</div>
+                        </div>
+                        <button class="btn btn-small btn-secondary">Профиль</button>
+                    </div>
+                    <div class="friend-card">
+                        <div class="friend-avatar">👤</div>
+                        <div class="friend-info">
+                            <div class="friend-name">@Maria</div>
+                            <div class="friend-status">Выполнила 28 квестов</div>
+                        </div>
+                        <button class="btn btn-small btn-secondary">Профиль</button>
+                    </div>
+                    <div class="friend-card">
+                        <div class="friend-avatar">👤</div>
+                        <div class="friend-info">
+                            <div class="friend-name">@Ivan</div>
+                            <div class="friend-status">Выполнил 7 квестов</div>
+                        </div>
+                        <button class="btn btn-small btn-secondary">Профиль</button>
+                    </div>
+                </div>
+
+                <div class="pro-feature-block" id="friends-pro-feature">
+                    <div class="pro-badge">PRO</div>
+                    <p>🔗 Приглашайте друзей через ссылку квеста и смотрите, какие квесты они выполняют!</p>
+                    <button class="btn btn-accent" id="friends-pro-btn">Оформить PRO</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="achievements-tab" class="tab-content">
+            <div class="container">
+                <h1>Мои достижения</h1>
+                
+                <div class="badges-section">
+                    <h2>Ваши бейджи</h2>
+                    <div class="badges-grid" id="badges-grid">
+                        <div class="badge-card locked">
+                            <div class="badge-icon">🌟</div>
+                            <div class="badge-name">Новичок</div>
+                            <div class="badge-requirement">5 квестов</div>
+                        </div>
+                        <div class="badge-card locked">
+                            <div class="badge-icon">🔍</div>
+                            <div class="badge-name">Искатель</div>
+                            <div class="badge-requirement">20 квестов</div>
+                        </div>
+                        <div class="badge-card locked">
+                            <div class="badge-icon">🏆</div>
+                            <div class="badge-name">Мастер приключений</div>
+                            <div class="badge-requirement">50 квестов</div>
+                        </div>
+                        <div class="badge-card locked pro-badge-card">
+                            <div class="badge-icon">👥</div>
+                            <div class="badge-name">Командный игрок</div>
+                            <div class="badge-requirement">PRO: 10 совместных квестов</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quests-history">
+                    <h2>История квестов</h2>
+                    <div id="quests-history-list">
+                        <p class="empty-state">Вы еще не выполнили ни одного квеста. Начните прямо сейчас! 🎯</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings-tab" class="tab-content">
+            <div class="container">
+                <h1>Настройки</h1>
+                
+                <div class="settings-section">
+                    <h2>Подписка PRO</h2>
+                    <div class="subscription-card" id="subscription-status">
+                        <div class="subscription-info">
+                            <div class="subscription-tier">Бесплатная версия</div>
+                            <p>Получите доступ ко всем возможностям приложения!</p>
+                        </div>
+                        <button class="btn btn-accent" id="subscribe-btn">Оформить подписку 300 ₽/мес</button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>Реферальная система</h2>
+                    <div class="referral-card">
+                        <p>Приглашайте друзей и получайте бонусы!</p>
+                        <div class="referral-link-box">
+                            <input type="text" value="https://questgo.app/ref/demo123" readonly id="referral-link-input">
+                            <button class="btn btn-secondary btn-small" id="copy-referral-btn">Копировать</button>
+                        </div>
+                        <p class="referral-stats">Приглашено друзей: <strong>0</strong></p>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>Анкета</h2>
+                    <button class="btn btn-secondary" id="edit-profile-btn">Редактировать профиль</button>
+                    <div id="profile-display" class="profile-display"></div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>Поддержка</h2>
+                    <div class="support-links">
+                        <div class="support-item">
+                            <button class="support-link" id="support-email-btn">
+                                <span class="support-icon">📧</span>
+                                <span class="support-text">Написать в поддержку</span>
+                                <span class="support-arrow">▼</span>
+                            </button>
+                            <div class="support-content" id="support-email-content">
+                                <div class="support-info">
+                                    <h3>Свяжитесь с нами</h3>
+                                    <p><strong>Email:</strong> support@questgo.app</p>
+                                    <p><strong>Telegram:</strong> @Tih000</p>
+                                    <p><strong>Время ответа:</strong> до 2 часов</p>
+                                    <p>Опишите вашу проблему максимально подробно, и мы обязательно поможем!</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="support-item">
+                            <button class="support-link" id="support-faq-btn">
+                                <span class="support-icon">❓</span>
+                                <span class="support-text">Часто задаваемые вопросы</span>
+                                <span class="support-arrow">▼</span>
+                            </button>
+                            <div class="support-content" id="support-faq-content">
+                                <div class="support-info">
+                                    <h3>Часто задаваемые вопросы</h3>
+                                    <div class="faq-item">
+                                        <h4>Как работает генерация квестов?</h4>
+                                        <p>Наш ИИ анализирует ваши интересы и создает персонализированные квесты. Каждый квест уникален и адаптирован под ваши предпочтения.</p>
+                                    </div>
+                                    <div class="faq-item">
+                                        <h4>Что дает PRO-подписка?</h4>
+                                        <p>PRO-подписка открывает доступ к неограниченным квестам, VIP-заданиям, совместным квестам с друзьями и эксклюзивным достижениям.</p>
+                                    </div>
+                                    <div class="faq-item">
+                                        <h4>Как отменить подписку?</h4>
+                                        <p>Вы можете отменить подписку в любое время в настройках приложения или связавшись с поддержкой.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="support-item">
+                            <button class="support-link" id="support-about-btn">
+                                <span class="support-icon">📱</span>
+                                <span class="support-text">О приложении</span>
+                                <span class="support-arrow">▼</span>
+                            </button>
+                            <div class="support-content" id="support-about-content">
+                                <div class="support-info">
+                                    <h3>QuestGO v1.0.0</h3>
+                                    <p><strong>Описание:</strong> ИИ-платформа для создания персонализированных квестов и приключений.</p>
+                                    <p><strong>Технологии:</strong> Искусственный интеллект, машинное обучение, веб-технологии.</p>
+                                    <p><strong>Разработчик:</strong> QuestGO Team</p>
+                                    <p><strong>Лицензия:</strong> MIT</p>
+                                    <p><strong>Последнее обновление:</strong> Ноябрь 2025</p>
+                                    <div class="app-features">
+                                        <h4>Основные возможности:</h4>
+                                        <ul>
+                                            <li>🎯 Персонализированные квесты</li>
+                                            <li>🤖 ИИ-генерация заданий</li>
+                                            <li>🏆 Система достижений</li>
+                                            <li>👥 Совместные квесты</li>
+                                            <li>📊 Статистика прогресса</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="quest-tab">
+                <span class="tab-icon">
+                    <img src="./backend/logo.png" alt="Quest" class="tab-logo">
+                </span>
+                <span class="tab-label">Квест</span>
+            </button>
+            <button class="tab-btn" data-tab="friends-tab">
+                <span class="tab-icon">👥</span>
+                <span class="tab-label">Друзья</span>
+            </button>
+            <button class="tab-btn" data-tab="achievements-tab">
+                <span class="tab-icon">🏆</span>
+                <span class="tab-label">Достижения</span>
+            </button>
+            <button class="tab-btn" data-tab="settings-tab">
+                <span class="tab-icon">⚙️</span>
+                <span class="tab-label">Настройки</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="subscription-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="subscription-modal-close" type="button">✕</button>
+            <h2>QuestGO PRO</h2>
+            <div class="pro-price">300 ₽/мес</div>
+            
+            <div class="pro-features">
+                <div class="pro-feature">
+                    <span class="feature-icon">♾️</span>
+                    <div>
+                        <strong>Неограниченные квесты</strong>
+                        <p>Генерируйте столько квестов, сколько захотите</p>
+                    </div>
+                </div>
+                <div class="pro-feature">
+                    <span class="feature-icon">✨</span>
+                    <div>
+                        <strong>VIP-квесты</strong>
+                        <p>Эксклюзивные задания повышенной сложности</p>
+                    </div>
+                </div>
+                <div class="pro-feature">
+                    <span class="feature-icon">👥</span>
+                    <div>
+                        <strong>Совместные квесты с друзьями</strong>
+                        <p>Проходите квесты вместе с друзьями</p>
+                    </div>
+                </div>
+                <div class="pro-feature">
+                    <span class="feature-icon">🏆</span>
+                    <div>
+                        <strong>Специальные достижения</strong>
+                        <p>Уникальные бейджи только для PRO</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-accent btn-large" id="activate-pro-btn">Оформить подписку</button>
+            <p class="modal-note">Это демоверсия. Реальная оплата не производится.</p>
+        </div>
+    </div>
+
+    <div id="edit-profile-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="edit-profile-modal-close">✕</button>
+            <h2>Редактировать профиль</h2>
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label for="edit-username">Имя пользователя</label>
+                    <input type="text" id="edit-username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-age">Возраст</label>
+                    <input type="number" id="edit-age" min="1" max="120">
+                </div>
+                
+                <div class="form-group">
+                    <label>Пол</label>
+                    <div class="gender-buttons">
+                        <button type="button" class="gender-btn" data-gender="М">М</button>
+                        <button type="button" class="gender-btn" data-gender="Ж">Ж</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-city">Город</label>
+                    <input type="text" id="edit-city">
+                </div>
+                
+                <div class="form-group">
+                    <label>Интересы</label>
+                    <div class="interests-grid">
+                        <button type="button" class="interest-btn" data-interest="еда">🍔 Еда</button>
+                        <button type="button" class="interest-btn" data-interest="спорт">⚽ Спорт</button>
+                        <button type="button" class="interest-btn" data-interest="искусство">🎨 Искусство</button>
+                        <button type="button" class="interest-btn" data-interest="путешествия">✈️ Путешествия</button>
+                        <button type="button" class="interest-btn" data-interest="другое">➕ Другое</button>
+                    </div>
+                    <input type="text" id="edit-custom-interest" placeholder="Введите свой интерес" style="display: none;">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
+

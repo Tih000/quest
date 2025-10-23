@@ -1,39 +1,30 @@
 {
-  "name": "frontend",
+  "name": "questgo-frontend",
   "version": "1.0.0",
-  "description": "Frontend application for the full-stack deployment",
-  "main": "index.js",
+  "description": "QuestGO Frontend - ИИ-квесты приложение",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "nodemon server.js",
+    "build": "echo 'Static files already built'"
+  },
+  "keywords": [
+    "questgo",
+    "quests",
+    "ai",
+    "frontend"
+  ],
+  "author": "QuestGO Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "axios": "^1.5.0",
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "path": "^0.12.7"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "typescript": "^4.9.0"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "proxy": "http://backend:5000"
+    "nodemon": "^3.0.2"
+  }
 }
