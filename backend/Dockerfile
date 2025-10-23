@@ -23,7 +23,7 @@ RUN mkdir -p ./data
 
 # Copy source code
 COPY src/ ./src/
-COPY data/ ./data/
+COPY data/questgo.json ./data/
 COPY logo.png ./
 
 # Build TypeScript
